@@ -12,7 +12,7 @@ double dist(float *U, float *V, int n){
     double s = 0.0;
     for (int i = 0; i < n; i++) {
         s += sqrt(
-            (pow(U[i], 2) + pow(V[i], 2))/(1 + pow(U[i]*V[i], 2))
+            (U[i]*U[i] + V[i]*V[i])/(1 + U[i]*V[i]*U[i]*V[i])
         );
     }
     return s;
