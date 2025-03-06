@@ -1,4 +1,4 @@
-// gcc -mavx main.c dist.c -lm -lpthread -o main; ./main <nb_threads> <mode>
+// gcc -mavx2 -mfma main.c dist.c -lm -lpthread -o main; ./main <nb_threads> <mode>
 #include "dist.h"
 #include <math.h>
 #include <stdio.h>
@@ -36,19 +36,8 @@ int main(int argc, char **argv) {
     struct timespec start, end;
     double result, vec_result, vec_gen_result, par_result, exec_time;
 
-    // Measure time for dist(U, V, n)
-    clock_gettime(CLOCK_MONOTONIC, &start);
-    result = dist(U, V, n);
-    clock_gettime(CLOCK_MONOTONIC, &end);
-    exec_time = get_time_diff(start, end);
-    printf("[Sequential] dist(U, V, n) = %lf, Execution time: %.2f ms\n", result, exec_time);
 
-    // Measure time for vec_dist(U, V, n)
-    clock_gettime(CLOCK_MONOTONIC, &start);
-    vec_result = vec_dist(U, V, n);
-    clock_gettime(CLOCK_MONOTONIC, &end);
-    exec_time = get_time_diff(start, end);
-    printf("[Vectorized] vec_dist(U, V, n) = %lf, Execution time: %.2f ms\n", vec_result, exec_time);
+   
 
     // Measure time for vec_dist_gen(U, V, n)
     clock_gettime(CLOCK_MONOTONIC, &start);
@@ -56,6 +45,21 @@ int main(int argc, char **argv) {
     clock_gettime(CLOCK_MONOTONIC, &end);
     exec_time = get_time_diff(start, end);
     printf("[Vectorized Unaligned] vec_dist_gen(U, V, n) = %lf, Execution time: %.2f ms\n", vec_gen_result, exec_time);
+
+    // Measure time for dist(U, V, n)
+    clock_gettime(CLOCK_MONOTONIC, &start);
+    result = dist(U, V, n);
+    clock_gettime(CLOCK_MONOTONIC, &end);
+    exec_time = get_time_diff(start, end);
+    printf("[Sequential] dist(U, V, n) = %lf, Execution time: %.2f ms\n", result, exec_time);
+
+     // Measure time for vec_dist(U, V, n)
+     clock_gettime(CLOCK_MONOTONIC, &start);
+     vec_result = vec_dist(U, V, n);
+     clock_gettime(CLOCK_MONOTONIC, &end);
+     exec_time = get_time_diff(start, end);
+     printf("[Vectorized] vec_dist(U, V, n) = %lf, Execution time: %.2f ms\n", vec_result, exec_time);
+
 
     // Measure time for distPar(U, V, n)
     int nb_threads = atoi(argv[1]);

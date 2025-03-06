@@ -28,11 +28,9 @@ double vec_dist(float *U, float *V, int n) {
 
         __m256 u2 = _mm256_mul_ps(u, u);  // U^2
         __m256 v2 = _mm256_mul_ps(v, v);  // V^2
-        __m256 num = _mm256_add_ps(u2, v2);  // U^2 - V^2
+        __m256 num = _mm256_add_ps(u2, v2);  // U^2 + V^2
 
-        __m256 uv = _mm256_mul_ps(u, v);  // U * V
-        __m256 uv2 = _mm256_mul_ps(uv, uv);  // (U * V)^2
-        __m256 den = _mm256_add_ps(_mm256_set1_ps(1.0f), uv2);  // 1 + (U * V)^2
+        __m256 den = _mm256_fmadd_ps(u2, v2, _mm256_set1_ps(1.0f));  // 1 + (U * V)^2
 
         __m256 div = _mm256_div_ps(num, den);  // Division élément par élément
 
@@ -64,11 +62,9 @@ double vec_dist_gen(float *U, float *V, int n) {
 
         __m256 u2 = _mm256_mul_ps(u, u);  // U^2
         __m256 v2 = _mm256_mul_ps(v, v);  // V^2
-        __m256 num = _mm256_add_ps(u2, v2);  // U^2 - V^2
+        __m256 num = _mm256_add_ps(u2, v2);  // U^2 + V^2
 
-        __m256 uv = _mm256_mul_ps(u, v);  // U * V
-        __m256 uv2 = _mm256_mul_ps(uv, uv);  // (U * V)^2
-        __m256 den = _mm256_add_ps(_mm256_set1_ps(1.0f), uv2);  // 1 + (U * V)^2
+        __m256 den = _mm256_fmadd_ps(u2, v2, _mm256_set1_ps(1.0f));  // 1 + (U * V)^2
 
         __m256 div = _mm256_div_ps(num, den);  // Division élément par élément
 
