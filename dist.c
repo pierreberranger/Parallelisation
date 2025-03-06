@@ -18,6 +18,16 @@ double dist(float *U, float *V, int n){
     return s;
 }
 
+double dist_float(float *U, float *V, int n){
+    float s = 0.0;
+    for (int i = 0; i < n; i++) {
+        s += sqrt(
+            (U[i]*U[i] + V[i]*V[i])/(1 + U[i]*V[i]*U[i]*V[i])
+        );
+    }
+    return (double) s;
+}
+
 double vec_dist(float *U, float *V, int n) {
     __m256 sum = _mm256_setzero_ps();  // Registre AVX pour accumuler la somme
 
@@ -90,18 +100,16 @@ typedef struct {
     float *V;
     int chunk_size;
     double *result;
-    int mode;
 } ThreadData;
-void* thread_func(void *arg) {
+void* thread_func_0(void *arg) {
     ThreadData *data = (ThreadData*)arg;
-    // Depending on the mode, call different functions
-    if (data->mode == 0) {
-        *(data->result) = vec_dist_gen(data->U, data->V, data->chunk_size);
-    } else {
-        *(data->result) = dist(data->U, data->V, data->chunk_size);
-    }
-    return NULL;
+    *(data->result) = vec_dist_gen(data->U, data->V, data->chunk_size);
 }
+void* thread_func_1(void *arg) {
+    ThreadData *data = (ThreadData*)arg;
+    *(data->result) = dist(data->U, data->V, data->chunk_size);
+}
+
 double distPar(float *U, float *V, int n, int nb_threads, int mode){
     pthread_t threads[nb_threads];
     ThreadData thread_data[nb_threads];
@@ -115,8 +123,12 @@ double distPar(float *U, float *V, int n, int nb_threads, int mode){
         thread_data[i].chunk_size = (i == nb_threads - 1) ? (n - i * chunk_size) : chunk_size;
         // printf("thread %d, chunksize : %d", i, thread_data[i].chunk_size);
         thread_data[i].result = &results[i];
-        thread_data[i].mode = mode;
-
+        void *thread_func;
+        if (mode == 0) {
+            thread_func = thread_func_0;       
+        } else {
+            thread_func = thread_func_1;
+        }
         if (pthread_create(&threads[i], NULL, thread_func, (void*)&thread_data[i]) != 0) {
             fprintf(stderr, "Error creating thread %d\n", i);
             return -1;

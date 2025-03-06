@@ -5,6 +5,7 @@
 #include <immintrin.h> 
 #include <time.h>
 #include <pthread.h>
+#include <float.h>
 
 #define ALIGNMENT 32 
 
@@ -31,27 +32,26 @@ int main(int argc, char **argv) {
     for (int i = 0; i < n; i++) {
         U[i] = rand_float_in_range(0.0f, 1.0f);
         V[i] = rand_float_in_range(0.0f, 1.0f);
+        
     }
 
     struct timespec start, end;
-    double result, vec_result, vec_gen_result, par_result, exec_time;
+    double result, vec_result, vec_gen_result, par_result, float_result, exec_time;
 
 
-   
-
-    // Measure time for vec_dist_gen(U, V, n)
-    clock_gettime(CLOCK_MONOTONIC, &start);
-    vec_gen_result = vec_dist_gen(U, V, n);
-    clock_gettime(CLOCK_MONOTONIC, &end);
-    exec_time = get_time_diff(start, end);
-    printf("[Vectorized Unaligned] vec_dist_gen(U, V, n) = %lf, Execution time: %.2f ms\n", vec_gen_result, exec_time);
 
     // Measure time for dist(U, V, n)
     clock_gettime(CLOCK_MONOTONIC, &start);
     result = dist(U, V, n);
     clock_gettime(CLOCK_MONOTONIC, &end);
     exec_time = get_time_diff(start, end);
-    printf("[Sequential] dist(U, V, n) = %lf, Execution time: %.2f ms\n", result, exec_time);
+    printf("[Sequential with double precision] dist(U, V, n) = %lf, Execution time: %.2f ms\n", result, exec_time);
+    // Measure time for dist_float(U, V, n)
+    clock_gettime(CLOCK_MONOTONIC, &start);
+    float_result = dist_float(U, V, n);
+    clock_gettime(CLOCK_MONOTONIC, &end);
+    exec_time = get_time_diff(start, end);
+    printf("[Sequential with single float precision] dist_float(U, V, n) = %lf, Execution time: %.2f ms\n", float_result, exec_time);
 
      // Measure time for vec_dist(U, V, n)
      clock_gettime(CLOCK_MONOTONIC, &start);
@@ -60,6 +60,12 @@ int main(int argc, char **argv) {
      exec_time = get_time_diff(start, end);
      printf("[Vectorized] vec_dist(U, V, n) = %lf, Execution time: %.2f ms\n", vec_result, exec_time);
 
+    // Measure time for vec_dist_gen(U, V, n)
+    clock_gettime(CLOCK_MONOTONIC, &start);
+    vec_gen_result = vec_dist_gen(U, V, n);
+    clock_gettime(CLOCK_MONOTONIC, &end);
+    exec_time = get_time_diff(start, end);
+    printf("[Vectorized Unaligned] vec_dist_gen(U, V, n) = %lf, Execution time: %.2f ms\n", vec_gen_result, exec_time);
 
     // Measure time for distPar(U, V, n)
     int nb_threads = atoi(argv[1]);
