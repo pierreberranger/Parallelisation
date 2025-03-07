@@ -7,7 +7,6 @@
 #include <pthread.h>
 
 
-
 double dist(float *U, float *V, int n){
     double s = 0.0;
     for (int i = 0; i < n; i++) {
@@ -116,13 +115,12 @@ double distPar(float *U, float *V, int n, int nb_threads, int mode){
     double results[nb_threads];
     int chunk_size = n / nb_threads;
     
-
     for (int i = 0; i < nb_threads; i++) {
         thread_data[i].U = U + i * chunk_size;
         thread_data[i].V = V + i * chunk_size;
         thread_data[i].chunk_size = (i == nb_threads - 1) ? (n - i * chunk_size) : chunk_size;
-        // printf("thread %d, chunksize : %d", i, thread_data[i].chunk_size);
         thread_data[i].result = &results[i];
+
         void *thread_func;
         if (mode == 0) {
             thread_func = thread_func_0;       
